@@ -21,9 +21,9 @@ def prob(adj_matrix):
 def relative_entropy(prob_1, prob_2):
     ans=0
     for i in range(prob_1.shape[0]):
-        if prob_1[i]==0 or prob_1[2]==0:
+        if prob_1[i]==0 or prob_1[i]==0:
             return ans
-        ans += prob_1*np.log(prob_1[i]/prob_1[2])
+        ans += prob_1*np.log(prob_1[i]/prob_2[i])
 
     return ans
 
