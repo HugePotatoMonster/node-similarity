@@ -17,15 +17,15 @@ def save_result(data, label):
     with open(os.path.join(result_folder_path, filename), 'w') as file:
         json.dump(data, file)
 
-def load_result(pkl_path):
+def load_result(json_path):
     try:
-        with open(pkl_path, 'r') as file:
+        with open(json_path, 'r') as file:
             data = json.load(file)
 
         return data
 
     except FileNotFoundError:
-        print(f"{pkl_path} not found")
+        print(f"{json_path} not found")
 
     except Exception as e:
         print(f"Error when reading file: {e}")
@@ -43,3 +43,17 @@ def load_ns(json_file_path):
     except FileNotFoundError:
         print(f"{json_file_path} not found. Creating a new one.")
         return {}
+    
+def save_f(data, folder, label):
+    result_root = os.path.join(os.getcwd(), "model_f")
+    if not os.path.exists(result_root):
+        os.makedirs(result_root)
+
+    result_folder_path = os.path.join(result_root, folder)
+    if not os.path.exists(result_folder_path):
+        os.makedirs(result_folder_path)
+
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"{label}-{current_time}.json"
+    with open(os.path.join(result_folder_path, filename), 'w') as file:
+        json.dump(data.tolist(), file)

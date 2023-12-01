@@ -22,7 +22,8 @@ def calculate(adj_matrix, label):
     rate = 0.125
     days = 40
 
-    model.calculate_spread(rate, days)
+    # model.calculate_spread(rate, days, True)
+    model.calculate_spread_avg(rate, days, repeat=10, save=True)
 
     cn_dit = model.affected_ability(cn_pairs, alg_label="CN", save=True)
     katz_dit = model.affected_ability(katz_pairs, alg_label="Katz", save=True)

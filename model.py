@@ -5,6 +5,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from tqdm import trange
+import copy
 
 class SIModel:
     def __init__(self, adj_matrix, data_label="D"):
@@ -38,50 +39,7 @@ class SIModel:
         
         return infected, infected_nodes
     
-    def __spread_once(self, rate, days, start_node):
-        num_nodes = len(self.adj_matrix)
-
-        infected = np.zeros(num_nodes, dtype=int)
-        infected[start_node] = 1
-        
-        infected_nodes = [set({start_node})]
-        
-        for _ in range(days):
-            temp = np.zeros(num_nodes, dtype=int)
-            for node in range(num_nodes):
-                if infected[node] == 0:
-                    neighbors = np.nonzero(self.adj_matrix[node, :])[1]
-                    if 1 in neighbors and np.random.rand() < rate:
-                        temp[node] = 1
-            
-            infected = infected|temp
-            infected_nodes.append(set(np.nonzero(infected > 0)[0]))
-        
-        return infected, infected_nodes
-    
-    def __spread_exp(self, rate, days, start_node):
-        num_nodes = len(self.adj_matrix)
-
-        infected = np.zeros(num_nodes, dtype=int)
-        infected[start_node] = 1
-        
-        infected_nodes = [set({start_node})]
-        
-        for _ in range(days):
-            temp = np.zeros(num_nodes, dtype=int)
-            for node in range(num_nodes):
-                if infected[node] == 0:
-                    neighbors = np.nonzero(self.adj_matrix[node, :])[1]
-                    infected_prob = len(neighbors)*rate
-                    if np.random.rand() < infected_prob:
-                        temp[node] = 1
-            
-            infected = infected|temp
-            infected_nodes.append(set(np.nonzero(infected > 0)[0]))
-        
-        return infected, infected_nodes
-    
-    def calculate_spread(self, rate, days):
+    def calculate_spread(self, rate, days, save=False):
         self.__rate = rate
         self.__days = days
 
@@ -89,6 +47,25 @@ class SIModel:
         self.__f = np.zeros((self.__node_num, days+1))
         for i in trange(self.__node_num):
             self.__f[i, :] = [len(s) for s in self.__spread(self.__rate, self.__days, i)[1]]
+
+        if save:
+            path.save_f(self.__f, self.__data_label, f"{rate}-{days}")
+
+    def calculate_spread_avg(self, rate, days, repeat=1, save=False):
+        self.__rate = rate
+        self.__days = days
+
+        f_list = []
+        for _ in range(repeat):
+            temp = np.zeros((self.__node_num, days+1))
+            for j in trange(self.__node_num):
+                temp[j, :] = [len(s) for s in self.__spread(self.__rate, self.__days, j)[1]]
+            f_list.append(copy.deepcopy(temp))
+            if save:
+                path.save_f(temp, self.__data_label, f"{rate}-{days}")
+        
+        self.__f = np.mean(f_list, axis=0)
+
     
     def affected_ability(self, pairs, alg_label="A", save=False):
         dif = []

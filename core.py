@@ -100,11 +100,12 @@ class LRE:
             for j in range(num_nodes):
                 if i==j:
                     s_matrix[i][j] = 0
-                elif r_max==0:
-                    s_matrix[i][j] = 1
+                # elif r_max==0:
+                #     s_matrix[i][j] = 1
                 else:
                     s_matrix[i][j] = 1 - r_matrix[i][j]/r_max
         return s_matrix
+
 class RE:
     def __init__(self, adj_matrix, filename="") -> None:
         self.adj_matrix = adj_matrix
@@ -162,8 +163,10 @@ class RE:
             dist_from_i = self.__dijkstra(i)
             self.shortest_paths_matrix[i, :] = [dist_from_i[j] for j in range(num_nodes)]
 
-        max_distances = np.max(self.shortest_paths_matrix, axis=1)
-        self.graph_radius = np.min(max_distances)
+        max_shortest_distances = np.max(self.shortest_paths_matrix, axis=1)
+        self.graph_radius = np.min(max_shortest_distances)
+
+        print(self.shortest_paths_matrix)
 
         return self.shortest_paths_matrix
     
@@ -229,6 +232,7 @@ class RE:
 
         slope, _, _, _, _ = linregress(ln_s, ln_ns)
         self.fractal_dimension = -slope
+        print("fractal_dimension: ", self.fractal_dimension)
     
     def __prob(self, adj_matrix):
         num_nodes = len(adj_matrix)
@@ -261,7 +265,7 @@ class RE:
             if prob_1[i]==0 or prob_2[i]==0:
                 return ans
             r = prob_1[i]/prob_2[i]
-            ans += (r**self.graph_radius-r)/-self.graph_radius
+            ans += (r**self.fractal_dimension-r)/(1-self.fractal_dimension)
         return ans
 
     def __re_matrix(self, prob_matrix):
@@ -283,13 +287,13 @@ class RE:
     def __s_matrix(self, r_matrix):
         num_nodes = r_matrix.shape[0]
         s_matrix = np.zeros((num_nodes, num_nodes), dtype=np.float64)
-        r_max = np.max(r_matrix)
+        r_sum = np.sum(r_matrix)
         for i in range(num_nodes):
             for j in range(num_nodes):
                 if i==j:
                     s_matrix[i][j] = 0
-                elif r_max==0:
-                    s_matrix[i][j] = 1
+                # elif r_max==0:
+                #     s_matrix[i][j] = 1
                 else:
-                    s_matrix[i][j] = 1 - r_matrix[i][j]/r_max
+                    s_matrix[i][j] = 1 - r_matrix[i][j]/r_sum
         return s_matrix
