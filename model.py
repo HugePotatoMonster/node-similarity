@@ -66,6 +66,14 @@ class SIModel:
         
         self.__f = np.mean(f_list, axis=0)
 
+    def calculate_spread_avg_from_file(self, file_list):
+        f_list = []
+        for file in file_list:
+            f_list.append(np.array(path.load_result(file)))
+        self.__f = np.mean(f_list, axis=0)
+
+        self.__days = self.__f.shape[1]-1
+
     
     def affected_ability(self, pairs, alg_label="A", save=False):
         dif = []

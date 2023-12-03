@@ -12,15 +12,15 @@ if __name__=="__main__":
     #     [0, 0, 0, 0.05, 0, 0.3],
     #     [0, 0, 0, 0, 0.3, 0]
     # ])
-    # adj_matrix = np.matrix([
-    #     [0, 1, 1, 0, 0, 0],
-    #     [1, 0, 1, 0, 0, 0],
-    #     [1, 1, 0, 1, 0, 0],
-    #     [0, 0, 1, 0, 1, 0],
-    #     [0, 0, 0, 1, 0, 1],
-    #     [0, 0, 0, 0, 1, 0]
-    # ])
-    nodes, edges, adj_matrix = dataset.get_Jazz_network()
+    adj_matrix = np.matrix([
+        [0, 1, 1, 0, 0, 0],
+        [1, 0, 1, 0, 0, 0],
+        [1, 1, 0, 1, 0, 0],
+        [0, 0, 1, 0, 1, 0],
+        [0, 0, 0, 1, 0, 1],
+        [0, 0, 0, 0, 1, 0]
+    ])
+    # nodes, edges, adj_matrix = dataset.get_Jazz_network()
     # cn = CN(adj_matrix)
     # cn.calculate()
     re = RE(adj_matrix)

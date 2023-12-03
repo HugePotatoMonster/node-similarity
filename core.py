@@ -100,8 +100,6 @@ class LRE:
             for j in range(num_nodes):
                 if i==j:
                     s_matrix[i][j] = 0
-                # elif r_max==0:
-                #     s_matrix[i][j] = 1
                 else:
                     s_matrix[i][j] = 1 - r_matrix[i][j]/r_max
         return s_matrix
@@ -258,14 +256,25 @@ class RE:
             prob_matrix[i, :len(dim_i)] = dim_i
 
         return prob_matrix
+    
+    def __relative_entropy(self, prob_1, prob_2):
+        ans=0
+        for i in range(prob_1.shape[0]):
+            if prob_1[i]==0 or prob_2[i]==0:
+                return ans
+            ans += prob_1[i]*np.log(prob_1[i]/prob_2[i])
+
+        return ans
 
     def __tsalli_entropy(self, prob_1, prob_2):
+        if self.__fractal_dimension == 1:
+            return self.__relative_entropy(prob_1, prob_2)
         ans=0
         for i in range(prob_1.shape[0]):
             if prob_1[i]==0 or prob_2[i]==0:
                 return ans
             r = prob_1[i]/prob_2[i]
-            ans += (r**self.fractal_dimension-r)/(1-self.fractal_dimension)
+            ans -= (r**self.fractal_dimension-r)/(1-self.fractal_dimension)
         return ans
 
     def __re_matrix(self, prob_matrix):
@@ -287,13 +296,11 @@ class RE:
     def __s_matrix(self, r_matrix):
         num_nodes = r_matrix.shape[0]
         s_matrix = np.zeros((num_nodes, num_nodes), dtype=np.float64)
-        r_sum = np.sum(r_matrix)
+        r_max = np.max(r_matrix)
         for i in range(num_nodes):
             for j in range(num_nodes):
                 if i==j:
                     s_matrix[i][j] = 0
-                # elif r_max==0:
-                #     s_matrix[i][j] = 1
                 else:
-                    s_matrix[i][j] = 1 - r_matrix[i][j]/r_sum
+                    s_matrix[i][j] = 1 - r_matrix[i][j]/r_max
         return s_matrix
