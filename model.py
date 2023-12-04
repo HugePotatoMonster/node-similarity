@@ -7,6 +7,7 @@ from matplotlib.animation import FuncAnimation
 from tqdm import trange
 import copy
 
+
 class SIModel:
     def __init__(self, adj_matrix, data_label="D"):
         self.adj_matrix = adj_matrix
@@ -21,32 +22,36 @@ class SIModel:
 
         infected = np.zeros(num_nodes, dtype=int)
         infected[start_node] = 1
-        
+
         infected_nodes = [set({start_node})]
-        
+
         for _ in range(days):
             temp = np.zeros(num_nodes, dtype=int)
             for node in range(num_nodes):
                 if infected[node] == 0:
                     neighbors = np.nonzero(self.adj_matrix[node, :])[1]
-                    count = np.sum([int(infected[neighbor]==1) for neighbor in neighbors])
-                    prob = 1-(1-rate)**count
-                    if np.random.rand()<prob:
+                    count = np.sum(
+                        [int(infected[neighbor] == 1) for neighbor in neighbors]
+                    )
+                    prob = 1 - (1 - rate) ** count
+                    if np.random.rand() < prob:
                         temp[node] = 1
-            
-            infected = infected|temp
+
+            infected = infected | temp
             infected_nodes.append(set(np.nonzero(infected > 0)[0]))
-        
+
         return infected, infected_nodes
-    
+
     def calculate_spread(self, rate, days, save=False):
         self.__rate = rate
         self.__days = days
 
         # spread
-        self.__f = np.zeros((self.__node_num, days+1))
+        self.__f = np.zeros((self.__node_num, days + 1))
         for i in trange(self.__node_num):
-            self.__f[i, :] = [len(s) for s in self.__spread(self.__rate, self.__days, i)[1]]
+            self.__f[i, :] = [
+                len(s) for s in self.__spread(self.__rate, self.__days, i)[1]
+            ]
 
         if save:
             path.save_f(self.__f, self.__data_label, f"{rate}-{days}")
@@ -57,13 +62,15 @@ class SIModel:
 
         f_list = []
         for _ in range(repeat):
-            temp = np.zeros((self.__node_num, days+1))
+            temp = np.zeros((self.__node_num, days + 1))
             for j in trange(self.__node_num):
-                temp[j, :] = [len(s) for s in self.__spread(self.__rate, self.__days, j)[1]]
+                temp[j, :] = [
+                    len(s) for s in self.__spread(self.__rate, self.__days, j)[1]
+                ]
             f_list.append(copy.deepcopy(temp))
             if save:
                 path.save_f(temp, self.__data_label, f"{rate}-{days}")
-        
+
         self.__f = np.mean(f_list, axis=0)
 
     def calculate_spread_avg_from_file(self, file_list):
@@ -72,16 +79,19 @@ class SIModel:
             f_list.append(np.array(path.load_result(file)))
         self.__f = np.mean(f_list, axis=0)
 
-        self.__days = self.__f.shape[1]-1
+        self.__days = self.__f.shape[1] - 1
 
-    
     def affected_ability(self, pairs, alg_label="A", save=False):
         dif = []
 
-        for day in range(self.__days+1):
+        for day in range(self.__days + 1):
             d_list = []
             for i in range(self.__node_num):
-                d_list.append(np.abs((self.__f[i][day]-self.__f[pairs[i]][day])/self.__node_num))
+                d_list.append(
+                    np.abs(
+                        (self.__f[i][day] - self.__f[pairs[i]][day]) / self.__node_num
+                    )
+                )
             dif.append(np.var(d_list))
 
         # save
@@ -90,7 +100,9 @@ class SIModel:
 
         return dif
 
-    def affected_ability_avg(self, pairs, rate, days, repeat=1, alg_label="A", save=False):
+    def affected_ability_avg(
+        self, pairs, rate, days, repeat=1, alg_label="A", save=False
+    ):
         temp = []
         for _ in range(repeat):
             self.calculate_spread(rate, days)
@@ -113,12 +125,22 @@ class SIModel:
             infected_set = infected_nodes[day]
             non_infected_nodes = list(G.nodes - infected_set)
 
-            nx.draw_networkx_nodes(G, pos, nodelist=non_infected_nodes, node_color='blue', node_size=1)
-            nx.draw_networkx_nodes(G, pos, nodelist=list(infected_set), node_color='red', node_size=1)
+            nx.draw_networkx_nodes(
+                G, pos, nodelist=non_infected_nodes, node_color="blue", node_size=1
+            )
+            nx.draw_networkx_nodes(
+                G, pos, nodelist=list(infected_set), node_color="red", node_size=1
+            )
             nx.draw_networkx_edges(G, pos, width=0.5, alpha=0.5)
 
-            ax.set_title(f'Infection Process - Day {day}')
+            ax.set_title(f"Infection Process - Day {day}")
 
-        FuncAnimation(fig, update, frames=min(days, len(infected_nodes)), repeat=False, interval=500)
+        FuncAnimation(
+            fig,
+            update,
+            frames=min(days, len(infected_nodes)),
+            repeat=False,
+            interval=500,
+        )
 
         plt.show()

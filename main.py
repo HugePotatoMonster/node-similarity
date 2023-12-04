@@ -5,8 +5,8 @@ from model import SIModel
 import numpy as np
 import matplotlib.pyplot as plt
 
-def calculate(adj_matrix, rate, days, label):
 
+def calculate(adj_matrix, rate, days, label):
     cn = CN(adj_matrix)
     katz = Katz(adj_matrix)
     lre = LRE(adj_matrix)
@@ -20,10 +20,8 @@ def calculate(adj_matrix, rate, days, label):
     print(re_matrix)
     print(r_matrix)
     print(s_matrix)
-    
-    model = SIModel(adj_matrix, data_label=label)
 
-    
+    model = SIModel(adj_matrix, data_label=label)
 
     # model.calculate_spread(rate, days, True)
     # model.calculate_spread_avg(rate, days, repeat=10, save=True)
@@ -51,7 +49,7 @@ def calculate(adj_matrix, rate, days, label):
         "model_f\\Jazz\\0.3-20-2023-12-02_18-34-05.json",
         "model_f\\Jazz\\0.3-20-2023-12-02_18-34-09.json",
         "model_f\\Jazz\\0.3-20-2023-12-02_18-34-13.json",
-        "model_f\\Jazz\\0.3-20-2023-12-02_18-34-17.json"
+        "model_f\\Jazz\\0.3-20-2023-12-02_18-34-17.json",
     ]
 
     model.calculate_spread_avg_from_file(file_list)
@@ -65,20 +63,21 @@ def calculate(adj_matrix, rate, days, label):
     # lre_dit = model.affected_ability_avg(lre_pairs, rate, days, 10, alg_label="LRE", save=True)
     # re_dit = model.affected_ability_avg(re_pairs, rate, days, 10, alg_label="RE", save=True)
 
-    plt.plot(cn_dit, label='CN')
-    plt.plot(katz_dit, label='Katz')
-    plt.plot(lre_dit, label='LRE')
-    plt.plot(re_dit, label='RE')
+    plt.plot(cn_dit, label="CN")
+    plt.plot(katz_dit, label="Katz")
+    plt.plot(lre_dit, label="LRE")
+    plt.plot(re_dit, label="RE")
 
     plt.title(label)
-    plt.xlabel('Days')
-    plt.ylabel('DIT(t)')
+    plt.xlabel("Days")
+    plt.ylabel("DIT(t)")
 
     plt.legend()
 
     plt.show()
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     rate = 0.3
     days = 20
 
