@@ -3,6 +3,26 @@ import networkx as nx
 import numpy as np
 
 
+def get_Karate_network():
+    number_pairs = []
+    with open("datasets\\Karate.wl", "r") as file:
+        for line in file:
+            pairs = re.findall(r"\[(\d+)\s(\d+)\]", line)
+            if pairs:
+                number_pairs.extend([(int(pair[0]), int(pair[1])) for pair in pairs])
+
+    all_values = [value for pair in number_pairs for value in pair]
+    num_nodes = max(all_values)
+
+    adj_matrix = np.zeros((num_nodes, num_nodes))
+
+    for edge in number_pairs:
+        adj_matrix[edge[0] - 1, edge[1] - 1] = 1
+        adj_matrix[edge[1] - 1, edge[0] - 1] = 1
+
+    return np.matrix(adj_matrix, dtype=int)
+
+
 def get_Jazz_network():
     with open("datasets\\Jazz-Musicians-Network.wl", "r") as file:
         data = file.read()
@@ -53,24 +73,3 @@ def get_USAir_network():
     undirct_adj_matrix = np.matrix(undirct_adj_matrix, dtype=int)
 
     return direct_adj_matrix, undirct_adj_matrix
-
-
-def get_Karate_network():
-    with open("datasets\\Karate.wl", "r") as file:
-        lines = file.readlines()
-
-    edges = []
-    for line in lines:
-        pairs = list(map(int, line.strip().split()))
-        for i in range(1, len(pairs)):
-            edges.append([pairs[0], pairs[i]])
-
-    num_nodes = max(max(edge) for edge in edges)
-
-    adj_matrix = np.zeros((num_nodes, num_nodes))
-
-    for edge in edges:
-        adj_matrix[edge[0] - 1, edge[1] - 1] = 1
-        adj_matrix[edge[1] - 1, edge[0] - 1] = 1
-
-    return np.matrix(adj_matrix, dtype=int)

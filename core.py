@@ -40,6 +40,38 @@ class Katz:
         return katz_matrix, similar_pairs
 
 
+class LRW:
+    def __init__(self, adj_matrix):
+        undirct_adj_matrix = [
+            [1 if weight != 0 else 0 for weight in row] for row in adj_matrix.A
+        ]
+        self.adj_matrix = np.matrix(undirct_adj_matrix, dtype=int)
+
+        self.degrees = self.adj_matrix.A.sum(axis=1)
+        self.trans_matrix = self.adj_matrix.A / self.degrees[:, np.newaxis]
+        self.prob_matrix = np.eye(self.trans_matrix.shape[0])
+
+    def calculate(self, time):
+        num_nodes = self.trans_matrix.shape[0]
+
+        for _ in range(time):
+            self.prob_matrix = np.dot(self.trans_matrix.T, self.prob_matrix)
+
+        e_num = np.sum(self.adj_matrix.A) / 2
+
+        lrw_matrix = np.zeros(self.adj_matrix.shape)
+
+        for i in range(num_nodes):
+            for j in range(num_nodes):
+                lrw_matrix[i][j] = (
+                    self.degrees[i] * self.prob_matrix[i][j]
+                    + self.degrees[j] * self.prob_matrix[j][i]
+                ) / (2 * e_num)
+
+        similar_pairs = np.argmax(lrw_matrix, axis=1)
+        return lrw_matrix, similar_pairs
+
+
 class LRE:
     def __init__(self, adj_matrix):
         undirct_adj_matrix = [
