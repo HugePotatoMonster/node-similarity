@@ -73,3 +73,21 @@ def get_USAir_network():
     undirct_adj_matrix = np.matrix(undirct_adj_matrix, dtype=int)
 
     return direct_adj_matrix, undirct_adj_matrix
+
+
+def get_Email_network():
+    edges = []
+    with open("datasets\\email-Eu-core.wl", "r") as file:
+        for line in file:
+            edge = tuple(map(int, line.strip().split()))
+            edges.append(edge)
+
+    num_nodes = max(max(edge) for edge in edges) + 1
+    adj_matrix = [[0] * num_nodes for _ in range(num_nodes)]
+
+    for edge in edges:
+        node1, node2 = edge
+        adj_matrix[node1][node2] = 1
+        adj_matrix[node2][node1] = 1
+
+    return np.matrix(adj_matrix)

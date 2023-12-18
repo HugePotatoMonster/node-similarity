@@ -9,20 +9,26 @@ import os
 
 class CN:
     def __init__(self, adj_matrix):
+        print("init CN")
         undirct_adj_matrix = [
             [1 if weight != 0 else 0 for weight in row] for row in adj_matrix.A
         ]
         self.adj_matrix = np.matrix(undirct_adj_matrix, dtype=int)
 
     def calculate(self):
+        print("calculate CN")
         cn_matrix = np.linalg.matrix_power(self.adj_matrix, 2).A
 
-        similar_pairs = np.argmax(cn_matrix, axis=1)
+        # similar_pairs = np.argmax(cn_matrix, axis=1)
+        similar_pairs = np.array(
+            [np.random.choice(np.where(row == np.max(row))[0]) for row in cn_matrix]
+        )
         return cn_matrix, similar_pairs
 
 
 class Katz:
     def __init__(self, adj_matrix):
+        print("init Katz")
         undirct_adj_matrix = [
             [1 if weight != 0 else 0 for weight in row] for row in adj_matrix.A
         ]
@@ -31,6 +37,7 @@ class Katz:
         self.beta = 1 / (2 * max_eigenvalue)
 
     def calculate(self, order):
+        print("calculate Katz")
         katz_matrix = np.zeros(self.adj_matrix.shape)
         for i in range(order):
             katz_matrix += self.beta**i * np.linalg.matrix_power(self.adj_matrix, i)
@@ -42,6 +49,7 @@ class Katz:
 
 class LRW:
     def __init__(self, adj_matrix):
+        print("init LRW")
         undirct_adj_matrix = [
             [1 if weight != 0 else 0 for weight in row] for row in adj_matrix.A
         ]
@@ -52,6 +60,7 @@ class LRW:
         self.prob_matrix = np.eye(self.trans_matrix.shape[0])
 
     def calculate(self, time):
+        print("calculate LRW")
         num_nodes = self.trans_matrix.shape[0]
 
         for _ in range(time):
@@ -74,12 +83,14 @@ class LRW:
 
 class LRE:
     def __init__(self, adj_matrix):
+        print("init LRE")
         undirct_adj_matrix = [
             [1 if weight != 0 else 0 for weight in row] for row in adj_matrix.A
         ]
         self.adj_matrix = np.matrix(undirct_adj_matrix, dtype=int)
 
     def calculate(self):
+        print("calculate LRE")
         prob_matrix = self.__prob(self.adj_matrix)
         lre_matrix = self.__lre_matrix(prob_matrix)
         r_matrix = self.__r_matrix(lre_matrix)
@@ -149,6 +160,7 @@ class LRE:
 
 class RE:
     def __init__(self, adj_matrix, filename="") -> None:
+        print("init RE")
         self.adj_matrix = adj_matrix
 
         if filename != "":
@@ -163,6 +175,7 @@ class RE:
         self.fractal_dimension = 0
 
     def calculate(self, lb):
+        print("calculate RE")
         self.__all_pairs_shortest_paths()
         self.__fractal_dimension(lb)
         prob_matrix = self.__prob(self.adj_matrix)
@@ -207,9 +220,10 @@ class RE:
             ]
 
         max_shortest_distances = np.max(self.shortest_paths_matrix, axis=1)
-        self.graph_radius = np.min(max_shortest_distances)
 
-        print(self.shortest_paths_matrix)
+        self.graph_radius = int(np.min(max_shortest_distances) / 2)
+
+        # print("r: {}".format(self.graph_radius))
 
         return self.shortest_paths_matrix
 
@@ -279,7 +293,7 @@ class RE:
 
         slope, _, _, _, _ = linregress(ln_s, ln_ns)
         self.fractal_dimension = -slope
-        print("fractal_dimension: ", self.fractal_dimension)
+        # print("fractal_dimension: ", self.fractal_dimension)
 
     def __prob(self, adj_matrix):
         num_nodes = len(adj_matrix)
@@ -299,7 +313,7 @@ class RE:
                 if num_points_within_distance_r != 0
                 else 0
             )
-
+        # print(local_dims)
         max_degree = int(np.max(np.sum(adj_matrix, axis=1)))
         prob_matrix = np.zeros((num_nodes, max_degree + 1), dtype=np.float64)
 
@@ -312,7 +326,6 @@ class RE:
             dim_i /= np.sum(dim_i)
 
             prob_matrix[i, : len(dim_i)] = dim_i
-
         return prob_matrix
 
     def __relative_entropy(self, prob_1, prob_2):

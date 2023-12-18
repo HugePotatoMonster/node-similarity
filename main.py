@@ -7,22 +7,28 @@ import matplotlib.pyplot as plt
 
 
 def calculate(adj_matrix, rate, days, label):
-    cn = CN(adj_matrix)
+    # cn = CN(adj_matrix)
     katz = Katz(adj_matrix)
     lrw = LRW(adj_matrix)
     lre = LRE(adj_matrix)
     re = RE(adj_matrix, label)
 
-    _, cn_pairs = cn.calculate()
+    # _, cn_pairs = cn.calculate()
     _, katz_pairs = katz.calculate(3)
     _, lrw_pairs = lrw.calculate(3)
     _, _, _, _, lre_pairs = lre.calculate()
     _, _, _, _, re_pairs = re.calculate(8)
 
+    # print("CN mutual: {}".format(calculate_mutual_ratio(cn_pairs)))
+    print("Katz mutual: {}".format(calculate_mutual_ratio(katz_pairs)))
+    print("LRW mutual: {}".format(calculate_mutual_ratio(lrw_pairs)))
+    print("LRE mutual: {}".format(calculate_mutual_ratio(lre_pairs)))
+    print("RE mutual: {}".format(calculate_mutual_ratio(re_pairs)))
+
     model = SIModel(adj_matrix, data_label=label)
 
     # model.calculate_spread(rate, days, True)
-    model.calculate_spread_avg(rate, days, repeat=20, save=True)
+    model.calculate_spread_avg(rate, days, repeat=15, save=True)
 
     # file_list = [
     #     "model_f\\USAir\\0.125-40-2023-12-02_15-18-50.json",
@@ -52,7 +58,7 @@ def calculate(adj_matrix, rate, days, label):
 
     # model.calculate_spread_avg_from_file(file_list)
 
-    cn_dit = model.affected_ability(cn_pairs, alg_label="CN", save=False)
+    # cn_dit = model.affected_ability(cn_pairs, alg_label="CN", save=False)
     katz_dit = model.affected_ability(katz_pairs, alg_label="Katz", save=False)
     lrw_dit = model.affected_ability(lrw_pairs, alg_label="LRW", save=False)
     lre_dit = model.affected_ability(lre_pairs, alg_label="LRE", save=False)
@@ -62,11 +68,13 @@ def calculate(adj_matrix, rate, days, label):
     # lre_dit = model.affected_ability_avg(lre_pairs, rate, days, 10, alg_label="LRE", save=True)
     # re_dit = model.affected_ability_avg(re_pairs, rate, days, 10, alg_label="RE", save=True)
 
-    plt.plot(cn_dit, label="CN")
+    # plt.plot(cn_dit, label="CN")
     plt.plot(katz_dit, label="Katz")
     plt.plot(lrw_dit, label="LRW")
     plt.plot(lre_dit, label="LRE")
     plt.plot(re_dit, label="RE")
+    # plt.plot(re_dit, label="LRE")
+    # plt.plot(lre_dit, label="RE")
 
     plt.title(label)
     plt.xlabel("Days")
@@ -77,6 +85,18 @@ def calculate(adj_matrix, rate, days, label):
     plt.show()
 
 
+def calculate_mutual_ratio(pairs):
+    mutual_points = 0
+
+    for i in range(len(pairs)):
+        j = pairs[i]
+        if j < len(pairs) and pairs[j] == i:
+            mutual_points += 1
+
+    mutual_ratio = mutual_points / len(pairs)
+    return mutual_ratio
+
+
 if __name__ == "__main__":
     rate = 0.3
     days = 20
@@ -84,5 +104,9 @@ if __name__ == "__main__":
     Karate_adj_matrix = dataset.get_Karate_network()
     nodes, edges, Jazz_adj_matrix = dataset.get_Jazz_network()
     USAir_direct_adj_matrix, USAir_undirct_adj_matrix = dataset.get_USAir_network()
+    Email_adj_matrix = dataset.get_Email_network()
 
-    calculate(Karate_adj_matrix, rate, days, "Karate")
+    # calculate(Karate_adj_matrix, rate, days, "Karate")
+    calculate(Jazz_adj_matrix, rate, days, "Jazz")
+    # calculate(USAir_undirct_adj_matrix, rate, days, "USAir")
+    # calculate(Email_adj_matrix, rate, days, "Email")
